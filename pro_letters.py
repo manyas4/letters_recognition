@@ -5,16 +5,11 @@ import numpy as np
 from collections import deque
 
 # LOCK CONCEPT
-
-# ==============================
-# CONFIG
-# ==============================
 CONF_THRESHOLD = 40
 HISTORY_SIZE = 7
 
-# ==============================
+
 # MediaPipe Init
-# ==============================
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(
     static_image_mode=False,
@@ -24,33 +19,27 @@ hands = mp_hands.Hands(
 
 mp_draw = mp.solutions.drawing_utils
 
-# ==============================
+
 # Load Model
-# ==============================
 model = joblib.load("Models/gesture_model_letters.pkl")
 
-# ==============================
 # Load Gesture Chart
-# ==============================
+
 gesture_chart = cv2.imread("letters.jpeg")
 if gesture_chart is None:
     print("❌ letters.jpeg not found!")
 
-# ==============================
+
 # Webcam
-# ==============================
 cap = cv2.VideoCapture(0)
 
-# ==============================
+
 # Variables
-# ==============================
 history = deque(maxlen=HISTORY_SIZE)
 sentence = ""
 locked = False   # 🔒 LOCK FLAG
 
-# ==============================
-# FULLSCREEN WINDOW
-# ==============================
+
 cv2.namedWindow("Gesture AI System", cv2.WINDOW_NORMAL)
 cv2.setWindowProperty(
     "Gesture AI System",
@@ -58,9 +47,7 @@ cv2.setWindowProperty(
     cv2.WINDOW_FULLSCREEN
 )
 
-# ==============================
-# MAIN LOOP
-# ==============================
+
 while True:
     success, frame = cap.read()
     if not success:
@@ -120,9 +107,9 @@ while True:
         history.clear()
         locked = False   # 🔓 UNLOCK when hand removed
 
-    # ==============================
+    
     # KEYBOARD CONTROLS
-    # ==============================
+   
     key = cv2.waitKey(1) & 0xFF
 
     if key == 32:  # SPACE
@@ -134,9 +121,9 @@ while True:
     elif key == ord('q'):
         break
 
-    # ==============================
+    
     # UI CANVAS (60-40 SPLIT)
-    # ==============================
+   
     canvas_width = 1400
     canvas_height = 800
 
@@ -147,16 +134,16 @@ while True:
     right_width = int(canvas_width * 0.4)
     left_width = canvas_width - right_width
 
-    # ===== RIGHT SIDE IMAGE =====
+    # RIGHT SIDE IMAGE
     if gesture_chart is not None:
         img_resized = cv2.resize(gesture_chart, (right_width, canvas_height))
         canvas[:, left_width:canvas_width] = img_resized
 
-    # ===== CAMERA =====
+    #  CAMERA
     cam = cv2.resize(frame, (left_width - 40, 380))
     canvas[20:400, 20:left_width - 20] = cam
 
-    # ===== BOTTOM PANEL =====
+    #  BOTTOM PANEL 
     cv2.rectangle(canvas, (20, 420), (left_width - 20, 780), (40, 40, 40), -1)
 
     # Letter
